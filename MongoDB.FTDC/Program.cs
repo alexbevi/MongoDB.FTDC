@@ -1,5 +1,7 @@
 ﻿using CommandLine;
 using System;
+using Serilog;
+using MongoDB.FTDC.Parser;
 
 namespace MongoDB.FTDC
 {
@@ -18,14 +20,24 @@ namespace MongoDB.FTDC
             {
                 if (o.Verbose)
                 {
-                    Console.WriteLine($"Verbose output enabled. Current Arguments: -v {o.Verbose}");
-                    Console.WriteLine("Quick Start Example! App is in Verbose mode!");
+                    Log.Logger = new LoggerConfiguration()
+                        .MinimumLevel.Debug()
+                        .WriteTo.Console()
+                        .CreateLogger();
+                    Log.Debug($"Verbose output enabled. Current Arguments: -v {o.Verbose}");
+                    Log.Information("Quick Start Example! App is in Verbose mode!");
                 }
                 else
                 {
-                    Console.WriteLine($"Current Arguments: -v {o.Verbose}");
-                    Console.WriteLine("Quick Start Example!");
+                    Log.Logger = new LoggerConfiguration()
+                        .MinimumLevel.Information()
+                        .WriteTo.Console()
+                        .CreateLogger();
+                    Log.Information("Quick Start Example!");
                 }
+
+                var ftdc = new FTDCFile();
+                ftdc.Open(@"C:\Users\Administrator\source\repos\MongoDB.FTDC\MongoDB.FTDC.Parser.Tests\diagnostic.data\metrics.2020-01-02T11-02-43Z-00000");
             });
         }
     }

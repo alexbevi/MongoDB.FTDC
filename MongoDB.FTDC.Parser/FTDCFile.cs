@@ -4,6 +4,7 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using System.IO;
 using MongoDB.Bson.Serialization;
+using Serilog;
 
 namespace MongoDB.FTDC.Parser
 {
@@ -17,6 +18,8 @@ namespace MongoDB.FTDC.Parser
             {
                 throw new FTDCException($"Cannot load ${path}");
             }
+
+            Log.Debug($"Loading ${path}");
 
             using var sourceStream = new FileStream(path, FileMode.Open);
             using var reader = new BsonBinaryReader(sourceStream);
