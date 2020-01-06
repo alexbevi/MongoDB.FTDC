@@ -7,7 +7,11 @@ This project uses [zlibnet](https://github.com/gdalsnes/zlibnet) to decompress z
 ## Roadmap
 
 - [x] Load FTDC from file
+- [ ] Load FTDC files from a directory
 - [x] Decompress FTDC data
+- [ ] CLI: summarize loaded FDTC file(s)
+	- [ ] timespan of loaded files
+	- [ ] system details from ftdc?
 
 ## Development
 
