@@ -5,6 +5,7 @@ using MongoDB.Bson.IO;
 using System.IO;
 using MongoDB.Bson.Serialization;
 using Serilog;
+using System.Linq;
 
 namespace MongoDB.FTDC.Parser
 {
@@ -12,8 +13,21 @@ namespace MongoDB.FTDC.Parser
     {
         public List<FTDCFileContents> Contents { get; internal set; } = new List<FTDCFileContents>();
 
-        public void Open(String path)
+        public DateTime MetricsStart { get; internal set; }
+        public DateTime MetricsEnd { get; internal set; }
+
+        /// <summary>
+        /// Create a FTDCFile instance from the provided path
+        /// </summary>
+        /// <param name="path"></param>
+        public FTDCFile(string path)
         {
+            Open(path);
+        }
+
+        private void Open(String path)
+        {
+            // TODO - test for file/directory
             if (!File.Exists(path))
             {
                 throw new FTDCException($"Cannot load ${path}");
@@ -28,6 +42,9 @@ namespace MongoDB.FTDC.Parser
                 var result = BsonSerializer.Deserialize<FTDCFileContents>(reader);
                 Contents.Add(result);
             }
+
+            MetricsStart = Contents.Min(d => d._id);
+            MetricsEnd = Contents.Max(d => d._id);
         }
     }
 }

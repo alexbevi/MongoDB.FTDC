@@ -10,7 +10,13 @@ namespace MongoDB.FTDC
         public class Options
         {
             [Option('v', "verbose", Required = false, HelpText = "Set output to verbose messages.")]
-            public bool Verbose { get; set; }
+            public bool Verbose { get; set; } = true;
+
+            [Option("timespan", Required = false, HelpText = "Show Timespan the parsed FTDC covers")]
+            public bool Timespan { get; set; } = true;
+
+            [Option('f', "file", Required = false, HelpText = "FTDC file to parse")]
+            public string Filename { get; set; } = @"C:\Users\Administrator\source\repos\MongoDB.FTDC\MongoDB.FTDC.Parser.Tests\diagnostic.data\metrics.2020-01-02T11-02-43Z-00000";
         }
 
         private static void Main(string[] args)
@@ -18,26 +24,20 @@ namespace MongoDB.FTDC
             CommandLine.Parser.Default.ParseArguments<Options>(args)
             .WithParsed<Options>(o =>
             {
-                if (o.Verbose)
-                {
-                    Log.Logger = new LoggerConfiguration()
-                        .MinimumLevel.Debug()
-                        .WriteTo.Console()
-                        .CreateLogger();
-                    Log.Debug($"Verbose output enabled. Current Arguments: -v {o.Verbose}");
-                    Log.Information("Quick Start Example! App is in Verbose mode!");
-                }
-                else
-                {
-                    Log.Logger = new LoggerConfiguration()
-                        .MinimumLevel.Information()
-                        .WriteTo.Console()
-                        .CreateLogger();
-                    Log.Information("Quick Start Example!");
-                }
+                Log.Logger = o.Verbose
+                    ? new LoggerConfiguration().MinimumLevel.Debug().WriteTo.Console().CreateLogger()
+                    : new LoggerConfiguration().MinimumLevel.Information().WriteTo.Console().CreateLogger();
 
-                var ftdc = new FTDCFile();
-                ftdc.Open(@"C:\Users\Administrator\source\repos\MongoDB.FTDC\MongoDB.FTDC.Parser.Tests\diagnostic.data\metrics.2020-01-02T11-02-43Z-00000");
+                Log.Information("MongoDB FTDC Parser");
+
+                var ftdc = new FTDCFile(o.Filename);
+                Log.Debug($"FTDC Samples: {ftdc.Contents.Count}");
+
+                if (o.Timespan)
+                {
+                    Log.Information($"Metrics Begin: {ftdc.MetricsStart}");
+                    Log.Information($"Metrics End:   {ftdc.MetricsEnd}");
+                }
             });
         }
     }
