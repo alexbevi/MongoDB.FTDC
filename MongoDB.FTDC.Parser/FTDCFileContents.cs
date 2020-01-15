@@ -1,9 +1,8 @@
 ﻿using MongoDB.Bson;
+using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace MongoDB.FTDC.Parser
 {
@@ -16,10 +15,14 @@ namespace MongoDB.FTDC.Parser
         public BsonDocument doc { get; set; }
         public BsonBinaryData data { get; set; }
 
-        public BsonDocument DecompressedData { get; internal set; }
+        public string DecompressedData { get; internal set; }
 
         public void DecompressData()
         {
+            // sanity check
+            if (type != 1)
+                return;
+
             byte[] raw = data.AsByteArray;
             byte[] compressed = new byte[raw.Length - 4];
             Array.Copy(raw, 4, compressed, 0, compressed.Length);
@@ -39,7 +42,9 @@ namespace MongoDB.FTDC.Parser
                 }
             }
             while (count > 0);
-            DecompressedData = BsonSerializer.Deserialize<BsonDocument>(memory.ToArray());
+            var doc = BsonSerializer.Deserialize<BsonDocument>(memory.ToArray());
+            var s = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
+            DecompressedData = doc.ToJson(s);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using CommandLine;
 using System;
-using Serilog;
 using MongoDB.FTDC.Parser;
+using System.Linq;
 
 namespace MongoDB.FTDC
 {
@@ -10,34 +10,49 @@ namespace MongoDB.FTDC
         public class Options
         {
             [Option('v', "verbose", Required = false, HelpText = "Set output to verbose messages.")]
-            public bool Verbose { get; set; } = true;
+            public bool Verbose { get; set; }
 
-            [Option("timespan", Required = false, HelpText = "Show Timespan the parsed FTDC covers")]
-            public bool Timespan { get; set; } = true;
+            [Option('f', "file", Required = true, HelpText = "FTDC file to parse")]
+            public string Filename { get; set; }
 
-            [Option('f', "file", Required = false, HelpText = "FTDC file to parse")]
-            public string Filename { get; set; } = @"C:\Users\Administrator\source\repos\MongoDB.FTDC\MongoDB.FTDC.Parser.Tests\diagnostic.data\metrics.2020-01-02T11-02-43Z-00000";
+            [Option("limit-samples", Required = false, HelpText = "Limit # of samples to return")]
+            public int LimitSamples { get; set; } = 0;
+
+            [Option("skip-zero-samples", Required = false, HelpText = "Don't print metrics that have a value of zero")]
+            public bool SkipZeroSamples { get; set; } = false;
         }
 
         private static void Main(string[] args)
         {
+            args = new string[] {
+                "-v", "true",
+                "-f",
+                @"C:\Users\Administrator\source\repos\MongoDB.FTDC\MongoDB.FTDC.Parser.Tests\diagnostic.data\metrics.2020-01-02T11-02-43Z-00000",
+                "--limit-samples", "1",
+                "--skip-zero-samples", "true"
+            };
+
             CommandLine.Parser.Default.ParseArguments<Options>(args)
             .WithParsed<Options>(o =>
             {
-                Log.Logger = o.Verbose
-                    ? new LoggerConfiguration().MinimumLevel.Debug().WriteTo.Console().CreateLogger()
-                    : new LoggerConfiguration().MinimumLevel.Information().WriteTo.Console().CreateLogger();
-
-                Log.Information("MongoDB FTDC Parser");
-
                 var ftdc = new FTDCFile(o.Filename);
-                Log.Debug($"FTDC Samples: {ftdc.Contents.Count}");
 
-                if (o.Timespan)
+                if (o.Verbose)
                 {
-                    Log.Information($"Metrics Begin: {ftdc.MetricsStart}");
-                    Log.Information($"Metrics End:   {ftdc.MetricsEnd}");
+                    Console.WriteLine("MongoDB FTDC Parser");
+                    Console.WriteLine($"FTDC Samples: {ftdc.Contents.Count}");
+                    Console.WriteLine($"Metrics Begin: {ftdc.MetricsStart}");
+                    Console.WriteLine($"Metrics End:   {ftdc.MetricsEnd}");
+                    var details = ftdc.Contents.First(d => d.type == 0).doc.ToString();
+                    Console.WriteLine(details);
                 }
+
+                var q = ftdc.Contents.Where(d => d.type == 1);
+                if (o.LimitSamples > 0)
+                {
+                    q = q.Take(o.LimitSamples);
+                }
+                q.ToList().ForEach(x => JsonHelper.PrintFlattenedJson(x.DecompressedData, o.SkipZeroSamples));
             });
         }
     }

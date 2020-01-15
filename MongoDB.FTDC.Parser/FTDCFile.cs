@@ -4,7 +4,6 @@ using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using System.IO;
 using MongoDB.Bson.Serialization;
-using Serilog;
 using System.Linq;
 
 namespace MongoDB.FTDC.Parser
@@ -33,13 +32,16 @@ namespace MongoDB.FTDC.Parser
                 throw new FTDCException($"Cannot load ${path}");
             }
 
-            Log.Debug($"Loading ${path}");
-
             using var sourceStream = new FileStream(path, FileMode.Open);
             using var reader = new BsonBinaryReader(sourceStream);
             while (!reader.IsAtEndOfFile())
             {
                 var result = BsonSerializer.Deserialize<FTDCFileContents>(reader);
+
+                // FIXME - we should only decompress the data we actually want to use, but this will
+                // have to wait until we have timeseries parsing in place
+                result.DecompressData();
+
                 Contents.Add(result);
             }
 
