@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using ICSharpCode.SharpZipLib.Zip.Compression.Streams;
+using MongoDB.Bson;
 using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 using System;
@@ -6,8 +7,6 @@ using System.IO;
 
 namespace MongoDB.FTDC.Parser
 {
-    using CompressionMode = ZLibNet.CompressionMode;
-
     public class FTDCFileContents
     {
         public DateTime _id { get; set; }
@@ -15,7 +14,7 @@ namespace MongoDB.FTDC.Parser
         public BsonDocument doc { get; set; }
         public BsonBinaryData data { get; set; }
 
-        public string DecompressedData { get; internal set; }
+        private BsonDocument DecompressedData { get; set; }
 
         public void DecompressData()
         {
@@ -27,24 +26,27 @@ namespace MongoDB.FTDC.Parser
             byte[] compressed = new byte[raw.Length - 4];
             Array.Copy(raw, 4, compressed, 0, compressed.Length);
 
-            using var inputstr = new MemoryStream(compressed);
-            using var stream = new ZLibNet.ZLibStream(inputstr, CompressionMode.Decompress);
-            const int size = 256;
-            byte[] buffer = new byte[size];
-            using MemoryStream memory = new MemoryStream();
-            int count = 0;
-            do
+            using var outputStream = new MemoryStream();
+            using (var compressedStream = new MemoryStream(compressed))
+            using (var inputStream = new InflaterInputStream(compressedStream))
             {
-                count = stream.Read(buffer, 0, size);
-                if (count > 0)
-                {
-                    memory.Write(buffer, 0, count);
-                }
+                inputStream.CopyTo(outputStream);
+                outputStream.Position = 0;
             }
-            while (count > 0);
-            var doc = BsonSerializer.Deserialize<BsonDocument>(memory.ToArray());
+
+            DecompressedData = BsonSerializer.Deserialize<BsonDocument>(outputStream.ToArray());
+        }
+
+        public string DataAsJson()
+        {
             var s = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
-            DecompressedData = doc.ToJson(s);
+            return (DecompressedData != null) ? DecompressedData.ToJson(s) : String.Empty;
+        }
+
+        public string DocAsJson()
+        {
+            var s = new JsonWriterSettings { OutputMode = JsonOutputMode.Strict };
+            return (doc != null) ? doc.ToJson(s) : String.Empty;
         }
     }
 }

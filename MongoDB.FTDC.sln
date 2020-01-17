@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.FTDC.Parser", "Mong
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoDB.FTDC.Parser.Tests", "MongoDB.FTDC.Parser.Tests\MongoDB.FTDC.Parser.Tests.csproj", "{D39CBADE-3D6C-4F04-A237-1E9322C9C0A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "zlibnet", "zlibnet\zlibnet\zlibnet.csproj", "{18077F2F-5242-4807-B0BD-29129F0A4A74}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4BF6221A-FA2D-4321-BED6-ECE4DFB3957A}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
@@ -35,10 +33,6 @@ Global
 		{D39CBADE-3D6C-4F04-A237-1E9322C9C0A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D39CBADE-3D6C-4F04-A237-1E9322C9C0A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D39CBADE-3D6C-4F04-A237-1E9322C9C0A9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{18077F2F-5242-4807-B0BD-29129F0A4A74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{18077F2F-5242-4807-B0BD-29129F0A4A74}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{18077F2F-5242-4807-B0BD-29129F0A4A74}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{18077F2F-5242-4807-B0BD-29129F0A4A74}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

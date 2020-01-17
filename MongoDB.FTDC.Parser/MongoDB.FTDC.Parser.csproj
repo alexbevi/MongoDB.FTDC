@@ -6,10 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="MongoDB.Bson" Version="2.10.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\zlibnet\zlibnet\zlibnet.csproj" />
+    <PackageReference Include="SharpZipLib" Version="1.2.0" />
   </ItemGroup>
 
 </Project>

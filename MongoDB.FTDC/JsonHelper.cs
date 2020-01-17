@@ -16,19 +16,6 @@ namespace MongoDB.FTDC
             return dict;
         }
 
-        public static void PrintFlattenedJson(string json, bool skipZeroValues = false)
-        {
-            var dict = DeserializeAndFlatten(json);
-            foreach (var kvp in dict)
-            {
-                if (skipZeroValues && (kvp.Value.GetType() != typeof(String) && Convert.ToInt64(kvp.Value) == 0))
-                {
-                    continue;
-                }
-                Console.WriteLine(kvp.Key + ": " + kvp.Value);
-            }
-        }
-
         private static void FillDictionaryFromJToken(Dictionary<string, object> dict, JToken token, string prefix)
         {
             switch (token.Type)
